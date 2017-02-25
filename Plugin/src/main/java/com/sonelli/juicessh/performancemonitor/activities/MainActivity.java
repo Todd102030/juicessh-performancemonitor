@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.sonelli.juicessh.performancemonitor.R;
@@ -28,6 +29,7 @@ import com.sonelli.juicessh.performancemonitor.controllers.DiskUsageController;
 import com.sonelli.juicessh.performancemonitor.controllers.FreeRamController;
 import com.sonelli.juicessh.performancemonitor.controllers.LoadAverageController;
 import com.sonelli.juicessh.performancemonitor.controllers.NetworkUsageController;
+import com.sonelli.juicessh.performancemonitor.controllers.UptimeController;
 import com.sonelli.juicessh.performancemonitor.helpers.PreferenceHelper;
 import com.sonelli.juicessh.performancemonitor.loaders.ConnectionListLoader;
 import com.sonelli.juicessh.performancemonitor.views.AutoResizeTextView;
@@ -63,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements ActionBar.OnNavig
     private BaseController cpuUsageController;
     private BaseController diskUsageController;
     private BaseController networkUsageController;
+    private BaseController uptimeController;
 
     // Text displays
     private AutoResizeTextView loadAverageTextView;
@@ -70,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements ActionBar.OnNavig
     private AutoResizeTextView cpuUsageTextView;
     private AutoResizeTextView networkUsageTextView;
     private AutoResizeTextView diskUsageTextView;
+    private TextView uptimeTextView;
 
     // State
     private volatile int sessionId;
@@ -101,6 +105,7 @@ public class MainActivity extends AppCompatActivity implements ActionBar.OnNavig
         this.cpuUsageTextView = (AutoResizeTextView) findViewById(R.id.cpu_usage);
         this.networkUsageTextView = (AutoResizeTextView) findViewById(R.id.network_usage);
         this.diskUsageTextView = (AutoResizeTextView) findViewById(R.id.disk_usage);
+        this.uptimeTextView = (TextView) findViewById(R.id.uptime);
 
         this.connectButton = (Button) findViewById(R.id.connect_button);
         Drawable drawable = getDrawable(R.drawable.login);
@@ -301,6 +306,13 @@ public class MainActivity extends AppCompatActivity implements ActionBar.OnNavig
                 .setTextview(diskUsageTextView)
                 .start();
 
+        this.uptimeController = new UptimeController(this)
+                .setSessionId(sessionId)
+                .setSessionKey(sessionKey)
+                .setPluginClient(client)
+                .setTextview(uptimeTextView)
+                .start();
+
         this.networkUsageController = new NetworkUsageController(this)
                 .setSessionId(sessionId)
                 .setSessionKey(sessionKey)
@@ -337,6 +349,10 @@ public class MainActivity extends AppCompatActivity implements ActionBar.OnNavig
 
         if(diskUsageController != null){
             diskUsageController.stop();
+        }
+
+        if(uptimeController != null){
+            uptimeController.stop();
         }
 
         if(networkUsageController != null){
