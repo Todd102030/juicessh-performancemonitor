@@ -27,10 +27,11 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="match_parent"
-                android:background="@drawable/ripple_uptime"
+                android:background="@drawable/shape_uptime"
                 android:layout_marginTop="8dp"
                 android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp">
+                android:layout_marginRight="8dp"
+                android:id="@+id/commandBtn1">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -45,14 +46,15 @@
                         android:src="@drawable/load" />
 
                     <TextView
-                        android:layout_marginStart="7dp"
+                        android:layout_marginLeft="7dp"
                         android:textStyle="bold"
                         android:layout_width="wrap_content"
                         android:textSize="22sp"
                         android:fontFamily="sans-serif"
                         android:textColor="@android:color/white"
                         android:layout_height="wrap_content"
-                        android:text="@string/uptime" />
+                        android:text="@string/uptime"
+                        android:id="@+id/commandText1" />
                 </LinearLayout>
 
                 <TextView
@@ -85,7 +87,7 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="match_parent"
-                android:background="@drawable/ripple_cpu_usage">
+                android:background="@drawable/shape_cpu_usage">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -98,7 +100,7 @@
                         android:layout_height="25dp"
                         android:src="@drawable/cpu"/>
                     <TextView
-                        android:layout_marginStart="7dp"
+                        android:layout_marginLeft="7dp"
                         android:textStyle="bold"
                         android:layout_width="wrap_content"
                         android:textSize="22sp"
@@ -123,12 +125,12 @@
             <LinearLayout
                 android:clickable="true"
                 android:elevation="3dp"
-                android:layout_marginStart="0dp"
-                android:layout_marginEnd="8dp"
+                android:layout_marginLeft="0dp"
+                android:layout_marginRight="8dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
                 android:gravity="center"
-                android:background="@drawable/ripple_free_memory"
+                android:background="@drawable/shape_free_memory"
                 android:orientation="vertical"
                 android:layout_width="0dp"
                 android:layout_weight="1"
@@ -146,7 +148,7 @@
                         android:src="@drawable/ram" />
                     <TextView
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="7dp"
+                        android:layout_marginLeft="7dp"
                         android:textStyle="bold"
                         android:layout_width="wrap_content"
                         android:textSize="22sp"
@@ -185,7 +187,7 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="match_parent"
-                android:background="@drawable/ripple_load_average"
+                android:background="@drawable/shape_load_average"
                 android:gravity="center" >
 
                 <LinearLayout
@@ -199,7 +201,7 @@
                         android:layout_height="25dp"
                         android:src="@drawable/load" />
                     <TextView
-                        android:layout_marginStart="7dp"
+                        android:layout_marginLeft="7dp"
                         android:textStyle="bold"
                         android:layout_width="wrap_content"
                         android:textSize="22sp"
@@ -242,7 +244,7 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="match_parent"
-                android:background="@drawable/ripple_network_usage">
+                android:background="@drawable/shape_network_usage">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -255,7 +257,7 @@
                         android:layout_height="25dp"
                         android:src="@drawable/network" />
                     <TextView
-                        android:layout_marginStart="7dp"
+                        android:layout_marginLeft="7dp"
                         android:textStyle="bold"
                         android:layout_width="wrap_content"
                         android:textSize="22sp"
@@ -284,7 +286,7 @@
                 android:layout_marginRight="8dp"
                 android:layout_marginBottom="8dp"
                 android:gravity="center"
-                android:background="@drawable/ripple_disk_usage"
+                android:background="@drawable/shape_disk_usage"
                 android:orientation="vertical"
                 android:layout_width="0dp"
                 android:layout_weight="1"
@@ -301,7 +303,7 @@
                         android:layout_height="25dp"
                         android:src="@drawable/disk" />
                     <TextView
-                        android:layout_marginStart="7dp"
+                        android:layout_marginLeft="7dp"
                         android:textStyle="bold"
                         android:layout_width="wrap_content"
                         android:textSize="22sp"

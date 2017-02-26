@@ -17,6 +17,7 @@ public abstract class BaseController {
     private String sessionKey;
     private PluginClient client;
     private TextView textView;
+    private String command;
     private WeakReference<Context> context;
 
     private AtomicBoolean isRunning = new AtomicBoolean(false);
@@ -37,6 +38,11 @@ public abstract class BaseController {
 
     public BaseController setPluginClient(PluginClient client){
         this.client = client;
+        return this;
+    }
+
+    public BaseController setCommand(String command){
+        this.command = command;
         return this;
     }
 
@@ -63,6 +69,10 @@ public abstract class BaseController {
 
     public PluginClient getPluginClient() {
         return client;
+    }
+
+    public String getCommand() {
+        return command;
     }
 
     public void setText(String string){

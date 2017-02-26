@@ -1,29 +1,38 @@
 package com.sonelli.juicessh.performancemonitor.activities;
 
 import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.sonelli.juicessh.performancemonitor.BuildConfig;
 import com.sonelli.juicessh.performancemonitor.R;
 import com.sonelli.juicessh.performancemonitor.adapters.ConnectionSpinnerAdapter;
 import com.sonelli.juicessh.performancemonitor.controllers.BaseController;
+import com.sonelli.juicessh.performancemonitor.controllers.CommandController;
 import com.sonelli.juicessh.performancemonitor.controllers.CpuUsageController;
 import com.sonelli.juicessh.performancemonitor.controllers.DiskUsageController;
 import com.sonelli.juicessh.performancemonitor.controllers.FreeRamController;
@@ -75,6 +84,12 @@ public class MainActivity extends AppCompatActivity implements ActionBar.OnNavig
     private AutoResizeTextView diskUsageTextView;
     private TextView uptimeTextView;
 
+    //Title Labels
+    private TextView titleText1;
+
+    //Widgets
+    LinearLayout commandBtn1;
+
     // State
     private volatile int sessionId;
     private volatile String sessionKey;
@@ -107,13 +122,27 @@ public class MainActivity extends AppCompatActivity implements ActionBar.OnNavig
         this.diskUsageTextView = (AutoResizeTextView) findViewById(R.id.disk_usage);
         this.uptimeTextView = (TextView) findViewById(R.id.uptime);
 
+        //Title Texts
+        this.titleText1 = (TextView) findViewById(R.id.commandText1);
+
+
+        this.commandBtn1 = (LinearLayout) findViewById(R.id.commandBtn1);
+
+
+        //Setup click listeners for buttons
+        setupCommandBtn1();
+
         this.connectButton = (Button) findViewById(R.id.connect_button);
-        Drawable drawable = getDrawable(R.drawable.login);
-        if (drawable != null) {
-            drawable.setBounds(0, 0, (int)(drawable.getIntrinsicWidth()*0.2),
-                    (int)(drawable.getIntrinsicHeight()*0.2));
+        if(Build.VERSION.SDK_INT>=21) {
+            Drawable drawable = getDrawable(R.drawable.login);
+            if (drawable != null) {
+                drawable.setBounds(0, 0, (int) (drawable.getIntrinsicWidth() * 0.2),
+                        (int) (drawable.getIntrinsicHeight() * 0.2));
+            }
+            connectButton.setCompoundDrawables(drawable, null, null, null);
+        }else{
+            connectButton.setBackgroundColor(getResources().getColor(R.color.dashboard_dark_orange));
         }
-        connectButton.setCompoundDrawables(drawable, null, null, null);
         connectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -140,12 +169,16 @@ public class MainActivity extends AppCompatActivity implements ActionBar.OnNavig
         });
 
         this.disconnectButton = (Button) findViewById(R.id.disconnect_button);
-        Drawable drawable1 = getDrawable(R.drawable.logout);
-        if (drawable1 != null) {
-            drawable1.setBounds(0, 0, (int)(drawable1.getIntrinsicWidth()*0.2),
-                    (int)(drawable1.getIntrinsicHeight()*0.2));
+        if(Build.VERSION.SDK_INT>=21) {
+            Drawable drawable1 = getDrawable(R.drawable.logout);
+            if (drawable1 != null) {
+                drawable1.setBounds(0, 0, (int)(drawable1.getIntrinsicWidth()*0.2),
+                        (int)(drawable1.getIntrinsicHeight()*0.2));
+            }
+            disconnectButton.setCompoundDrawables(drawable1, null, null, null);
+        }else{
+            disconnectButton.setBackgroundColor(getResources().getColor(R.color.dashboard_dark_orange));
         }
-        disconnectButton.setCompoundDrawables(drawable1, null, null, null);
         this.disconnectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -175,6 +208,63 @@ public class MainActivity extends AppCompatActivity implements ActionBar.OnNavig
             }
         });
 
+
+
+        this.loadAverageController = new LoadAverageController(this);
+
+        this.freeRamController = new FreeRamController(this);
+
+        this.cpuUsageController = new CpuUsageController(this);
+
+        this.diskUsageController = new DiskUsageController(this);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+        String command1 = prefs.getString("command1", "uptime");
+        titleText1.setText(command1 + ":");
+        this.uptimeController = new CommandController(this);
+
+        this.networkUsageController = new NetworkUsageController(this);
+    }
+
+    public void setupCommandBtn1(){
+        commandBtn1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("Enter command");
+
+// Set up the input
+                final EditText input = new EditText(MainActivity.this);
+// Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+                input.setInputType(InputType.TYPE_CLASS_TEXT);
+                builder.setView(input);
+
+// Set up the buttons
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+                        SharedPreferences.Editor editor = preferences.edit();
+                        editor.putString("command1", input.getText().toString());
+                        editor.putString("title1", input.getText().toString());
+                        editor.apply();
+                        titleText1.setText(input.getText().toString() + ":");
+                        if(uptimeController.isRunning()) {
+                            uptimeController.setCommand(input.getText().toString());
+                        }
+                        //= input.getText().toString();
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+                builder.show();
+            }
+        });
     }
 
     @Override
@@ -278,42 +368,45 @@ public class MainActivity extends AppCompatActivity implements ActionBar.OnNavig
             client.addSessionFinishedListener(sessionId, sessionKey, this);
         } catch (ServiceNotConnectedException ignored){}
 
-        this.loadAverageController = new LoadAverageController(this)
+        this.loadAverageController
                 .setSessionId(sessionId)
                 .setSessionKey(sessionKey)
                 .setPluginClient(client)
                 .setTextview(loadAverageTextView)
                 .start();
 
-        this.freeRamController = new FreeRamController(this)
+        this.freeRamController
                 .setSessionId(sessionId)
                 .setSessionKey(sessionKey)
                 .setPluginClient(client)
                 .setTextview(freeRamTextView)
                 .start();
 
-        this.cpuUsageController = new CpuUsageController(this)
+        this.cpuUsageController
                 .setSessionId(sessionId)
                 .setSessionKey(sessionKey)
                 .setPluginClient(client)
                 .setTextview(cpuUsageTextView)
                 .start();
 
-        this.diskUsageController = new DiskUsageController(this)
+        this.diskUsageController
                 .setSessionId(sessionId)
                 .setSessionKey(sessionKey)
                 .setPluginClient(client)
                 .setTextview(diskUsageTextView)
                 .start();
 
-        this.uptimeController = new UptimeController(this)
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+        String command1 = prefs.getString("command1", "uptime");
+        this.uptimeController
                 .setSessionId(sessionId)
                 .setSessionKey(sessionKey)
                 .setPluginClient(client)
                 .setTextview(uptimeTextView)
+                .setCommand(command1)
                 .start();
 
-        this.networkUsageController = new NetworkUsageController(this)
+        this.networkUsageController
                 .setSessionId(sessionId)
                 .setSessionKey(sessionKey)
                 .setPluginClient(client)
