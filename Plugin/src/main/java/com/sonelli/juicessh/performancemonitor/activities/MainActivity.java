@@ -18,6 +18,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -219,8 +220,8 @@ public class MainActivity extends AppCompatActivity implements ActionBar.OnNavig
         this.diskUsageController = new DiskUsageController(this);
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-        String command1 = prefs.getString("command1", "uptime");
-        titleText1.setText(command1 + ":");
+        String title1 = prefs.getString("title1", "Uptime");
+        titleText1.setText(title1 + ":");
         this.uptimeController = new CommandController(this);
 
         this.networkUsageController = new NetworkUsageController(this);
@@ -230,16 +231,18 @@ public class MainActivity extends AppCompatActivity implements ActionBar.OnNavig
         commandBtn1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                /*
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 builder.setTitle("Enter command");
 
-// Set up the input
+                // Set up the input
                 final EditText input = new EditText(MainActivity.this);
-// Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+                // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
                 input.setInputType(InputType.TYPE_CLASS_TEXT);
                 builder.setView(input);
 
-// Set up the buttons
+                // Set up the buttons
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -263,6 +266,39 @@ public class MainActivity extends AppCompatActivity implements ActionBar.OnNavig
                 });
 
                 builder.show();
+                */
+
+                LayoutInflater li = LayoutInflater.from(getBaseContext());
+                View promptsView = li.inflate(R.layout.customize_popup, null);
+                final EditText titleText = (EditText) promptsView.findViewById(R.id.titleText);
+                final EditText commandText = (EditText) promptsView.findViewById(R.id.commandText);
+
+                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(MainActivity.this)
+                        .setView(promptsView)
+                        .setCancelable(true)
+                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+                                SharedPreferences.Editor editor = preferences.edit();
+                                editor.putString("command1", commandText.getText().toString());
+                                editor.putString("title1", titleText.getText().toString());
+                                editor.apply();
+                                titleText1.setText(titleText.getText().toString() + ":");
+                                if(uptimeController.isRunning()) {
+                                    uptimeController.setCommand(commandText.getText().toString());
+                                }
+
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                dialog.dismiss();
+                            }
+                        });
+
+                final AlertDialog alertDialog = dialogBuilder.create();
+                alertDialog.show();
+
             }
         });
     }
